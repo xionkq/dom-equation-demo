@@ -26,19 +26,19 @@ const questionContentRef = ref<HTMLDivElement | null>(null) // 问题内容区�
 
 // 题目数据（你可以根据实际需求修改）
 const topOptions = ref([
-  { id: 1, text: '快乐自己，影响他人' },
-  { id: 2, text: '快乐自己，影响他人' },
-  { id: 3, text: '快乐自己，影响他人' },
-  { id: 4, text: '快乐自己，影响他人' },
-  { id: 5, text: '快乐自己，影响他人' },
+  { id: 1, text: '太阳' },
+  { id: 2, text: '月亮' },
+  { id: 3, text: '地球' },
+  { id: 4, text: '有环行星' },
+  { id: 5, text: '流星' },
 ])
 
 const bottomOptions = ref([
-  { id: 'A', text: '快乐自己，影响他人' },
-  { id: 'B', text: '快乐自己，影响他人' },
-  { id: 'C', text: '快乐自己，影响他人' },
-  { id: 'D', text: '快乐自己，影响他人' },
-  { id: 'E', text: '快乐自己，影响他人' },
+  { id: 'A', text: '🌙' },
+  { id: 'B', text: '🌎' },
+  { id: 'C', text: '☀️' },
+  { id: 'D', text: '☄️' },
+  { id: 'E', text: '🪐' },
 ])
 
 const tempLineStyle = computed(() => {
@@ -51,7 +51,9 @@ const tempLineStyle = computed(() => {
   const endPoint = { x: mousePosition.value.x, y: mousePosition.value.y }
 
   // 计算 form 到 to 的距离
-  const distance = Math.sqrt(Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2))
+  const distance = Math.sqrt(
+    Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2),
+  )
   // 计算 form-to 直线与垂直线的角度，单位 deg
   const angle = Math.atan2(endPoint.x - startPoint.x, endPoint.y - startPoint.y) * (180 / Math.PI)
 
@@ -89,15 +91,6 @@ function onBallMouseDown(event: MouseEvent, type: string, index: number) {
 
   const ballElement = event.currentTarget as HTMLElement
   const position = getBallPosition(ballElement)
-
-  // // 检查是否已经有连线从这个球开始，如果有则删除
-  // const existingConnectionIndex = connections.value.findIndex(
-  //   (conn) => conn.fromType === type && conn.fromIndex === index
-  // )
-
-  // if (existingConnectionIndex !== -1) {
-  //   connections.value.splice(existingConnectionIndex, 1)
-  // }
 
   const containerRect = questionContentRef.value?.getBoundingClientRect()
   if (!containerRect) return
@@ -172,7 +165,7 @@ function onMouseUp(event: MouseEvent) {
   const existingTargetIndex = connections.value.findIndex(
     (conn) =>
       (conn.toType === targetType && conn.toIndex === targetIndex) ||
-      (conn.fromType === targetType && conn.fromIndex === targetIndex)
+      (conn.fromType === targetType && conn.fromIndex === targetIndex),
   )
 
   if (existingTargetIndex !== -1) {
@@ -182,8 +175,10 @@ function onMouseUp(event: MouseEvent) {
   // 检查起始球是否已经有连线，如果有则删除
   const existingFromIndex = connections.value.findIndex(
     (conn) =>
-      (conn.fromType === currentDrag.value?.fromType && conn.fromIndex === currentDrag.value?.fromIndex) ||
-      (conn.toType === currentDrag.value?.fromType && conn.toIndex === currentDrag.value?.fromIndex)
+      (conn.fromType === currentDrag.value?.fromType &&
+        conn.fromIndex === currentDrag.value?.fromIndex) ||
+      (conn.toType === currentDrag.value?.fromType &&
+        conn.toIndex === currentDrag.value?.fromIndex),
   )
 
   if (existingFromIndex !== -1) {
@@ -206,19 +201,6 @@ function onMouseUp(event: MouseEvent) {
   currentDrag.value = null
 }
 
-// // 删除指定连线
-// function removeConnection(connectionId: number) {
-//   const index = connections.value.findIndex((conn) => conn.id === connectionId)
-//   if (index !== -1) {
-//     connections.value.splice(index, 1)
-//   }
-// }
-//
-// // 清空所有连线
-// function clearAllConnections() {
-//   connections.value = []
-// }
-
 function getLineStyle(connection: Connection) {
   const startPoint = {
     x: connection.from.x,
@@ -233,15 +215,16 @@ function getLineStyle(connection: Connection) {
 
   // 计算 form 到 to 两点之间的距离
   const distance = Math.round(
-    Math.sqrt(Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2))
+    Math.sqrt(Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2)),
   )
   // 计算 form-to 直线与垂直线的角度，单位 deg
-  const angle = Math.round(Math.atan2(endPoint.x - startPoint.x, endPoint.y - startPoint.y) * (180 / Math.PI))
+  const angle = Math.round(
+    Math.atan2(endPoint.x - startPoint.x, endPoint.y - startPoint.y) * (180 / Math.PI),
+  )
 
   return {
-    '--distance': distance + 'px',
-    '--border-bottom-width': `calc(var(--distance) - 200px)`,
-    '--before-el-top': `calc(var(--distance) - 100px)`,
+    '--border-bottom-width': `calc(${distance}px - 200px)`,
+    '--before-el-top': `calc(${distance}px - 100px)`,
     left: startPoint.x + 'px',
     top: startPoint.y + 'px',
     transform: `rotate(${360 - angle}deg)`,
@@ -261,165 +244,159 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="choice-question" @mousemove="onMouseMove" @mouseup="onMouseUp">
-    <div class="question-content" ref="questionContentRef">
+  <div
+    class="question-content"
+    ref="questionContentRef"
+    @mousemove="onMouseMove"
+    @mouseup="onMouseUp"
+  >
+    <div
+      v-for="connection in connections"
+      :key="connection.id"
+      :style="getLineStyle(connection)"
+      class="connection-line"
+    ></div>
+
+    <div v-if="currentDrag" :style="tempLineStyle" class="temp-line"></div>
+
+    <div class="top">
       <div
-        v-for="connection in connections"
-        :key="connection.id"
-        :style="getLineStyle(connection)"
-        class="connection-line"
-      ></div>
-
-      <div v-if="currentDrag" :style="tempLineStyle" class="temp-line"></div>
-
-      <div class="top">
-        <div
-          v-for="(option, index) in topOptions"
-          :key="option.id"
-          class="option-item"
-          :data-type="'top'"
-          :data-index="index"
-          @mousedown="onBallMouseDown($event, 'top', index)"
-        >
-          <span>{{ option.text }}</span>
-        </div>
+        v-for="(option, index) in topOptions"
+        :key="option.id"
+        class="option-item"
+        :data-type="'top'"
+        :data-index="index"
+        @mousedown="onBallMouseDown($event, 'top', index)"
+      >
+        <span>{{ option.text }}</span>
       </div>
-      <div class="bottom">
-        <div
-          v-for="(option, index) in bottomOptions"
-          :key="option.id"
-          class="option-item"
-          :data-type="'bottom'"
-          :data-index="index"
-          @mousedown="onBallMouseDown($event, 'bottom', index)"
-        >
-          <span>{{ option.text }}</span>
-        </div>
+    </div>
+    <div class="bottom">
+      <div
+        v-for="(option, index) in bottomOptions"
+        :key="option.id"
+        class="option-item"
+        :data-type="'bottom'"
+        :data-index="index"
+        @mousedown="onBallMouseDown($event, 'bottom', index)"
+      >
+        <span>{{ option.text }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.choice-question {
+.question-content {
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  position: relative;
+  max-width: 1440px;
+  max-height: 600px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
+  position: relative;
   user-select: none;
 
-  .question-content {
-    width: 1444px;
-    height: 602px;
-    margin-top: 42px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
+  --border-bottom-width: 0;
+  --before-el-top: 0;
 
-    .temp-line,
-    .connection-line {
+  .temp-line,
+  .connection-line {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-bottom: 150px solid #f9f8ca;
+    border-bottom-width: var(--border-bottom-width);
+
+    &::before {
+      content: '';
       position: absolute;
-      width: 0;
-      height: 0;
-      border-left: 4px solid transparent;
-      border-right: 4px solid transparent;
-      border-bottom: 150px solid #F9F8CA;
-      border-bottom-width: var(--border-bottom-width);
-
-      &::before {
-        content: '';
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #F9F8CA;
-        top: calc(var(--before-el-top) - 5px);
-        left: 50%;
-        transform: translateX(-50%);
-      }
-
-      &::after {
-        content: '';
-        position: absolute;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: #F9F8CA;
-        top: calc(var(--before-el-top) - 8px);
-        left: 50%;
-        transform: translateX(-50%);
-        filter: blur(3px);
-      }
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #f9f8ca;
+      top: calc(var(--before-el-top) - 5px);
+      left: 50%;
+      transform: translateX(-50%);
     }
 
-    .connection-line {
-      animation: dash 500ms;
+    &::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #f9f8ca;
+      top: calc(var(--before-el-top) - 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      filter: blur(3px);
+    }
+  }
 
-      &::before {
-        animation: dash-before 500ms;
-      }
+  .connection-line {
+    animation: dash 500ms;
 
-      &::after {
-        animation: dash-after 500ms;
-      }
+    &::before {
+      animation: dash-before 500ms;
     }
 
-    .top,
-    .bottom {
+    &::after {
+      animation: dash-after 500ms;
+    }
+  }
+
+  .top,
+  .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    z-index: 2;
+
+    .option-item {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #6096d3 0%, #1a2ac1 100%);
+      box-shadow: 0 4px 44px 0 #bfdee4 inset;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      width: 1325px;
-      z-index: 2;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 500;
+      color: #ffffff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
 
-      .option-item {
-        width: 185px;
-        height: 185px;
-        border-radius: 92.5px;
-        background: linear-gradient(157deg, #6096d3 11.59%, #2c3ac3 78.99%);
-        box-shadow: 0 4px 44px 0 #bfdee4 inset;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        font-weight: 500;
-        color: #fff;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        position: relative;
-
-        &:hover {
-          transform: scale(1.05);
-          box-shadow:
-            0 4px 44px 0 #bfdee4 inset,
-            0 0 20px rgba(255, 255, 255, 0.3);
-        }
-
-        &.dragging {
-          transform: scale(1.1);
-          box-shadow:
-            0 4px 44px 0 #bfdee4 inset,
-            0 0 30px rgba(255, 255, 255, 0.5);
-          z-index: 10;
-        }
-
-        span {
-          user-select: none;
-          pointer-events: none;
-        }
+      &:hover {
+        transform: scale(1.05);
+        box-shadow:
+          0 4px 44px 0 #bfdee4 inset,
+          0 0 20px #ffffff4c;
       }
-    }
 
-    .bottom {
-      margin-top: 200px;
+      &.dragging {
+        transform: scale(1.1);
+        box-shadow:
+          0 4px 44px 0 #bfdee4 inset,
+          0 0 30px #ffffff7f;
+        z-index: 10;
+      }
+
+      span {
+        user-select: none;
+        pointer-events: none;
+      }
     }
   }
 }
-
 
 @keyframes dash {
   0% {
@@ -431,7 +408,6 @@ onMounted(() => {
   }
 }
 
-
 @keyframes dash-before {
   0% {
     top: 100px;
@@ -441,7 +417,6 @@ onMounted(() => {
     top: calc(var(--before-el-top) - 5px);
   }
 }
-
 
 @keyframes dash-after {
   0% {

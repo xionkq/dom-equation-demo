@@ -6,5 +6,4 @@ import ImplementedWithCss from '@/view/ImplementedWithCss.vue'
   <ImplementedWithCss />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
