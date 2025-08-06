@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 
 // 定义连线数据结构类型
 interface Connection {
@@ -60,13 +60,12 @@ const tempLineStyle = computed(() => {
   if (distance < 100) return { display: 'none' }
 
   return {
-    '--border-bottom-width': distance - 100 + 'px',
-    '--before-el-top': distance + 'px',
-    left: startPoint.x + 'px',
-    top: startPoint.y + 'px',
+    '--border-bottom-width': `${distance - 100}px`,
+    '--before-el-top': `${distance}px`,
+    left: `${startPoint.x}px`,
+    top: `${startPoint.y}px`,
     transform: `rotate(${360 - angle}deg)`,
     transformOrigin: 'top center',
-    paddingTop: '100px',
   }
 })
 
@@ -105,9 +104,6 @@ function onBallMouseDown(event: MouseEvent, type: string, index: number) {
     fromType: type,
     fromIndex: index,
   }
-
-  // 添加小球激活状态
-  ballElement.classList.add('dragging')
 }
 
 // 鼠标移动事件
@@ -126,11 +122,6 @@ function onMouseMove(event: MouseEvent) {
 // 鼠标释放事件
 function onMouseUp(event: MouseEvent) {
   if (!currentDrag.value) return
-
-  // 移除所有拖拽状态样式
-  document.querySelectorAll('.option-item.dragging').forEach((el) => {
-    el.classList.remove('dragging')
-  })
 
   // 检查是否释放在有效的目标小球上
   const targetElement = document.elementFromPoint(event.clientX, event.clientY)
@@ -204,12 +195,10 @@ function onMouseUp(event: MouseEvent) {
 function getLineStyle(connection: Connection) {
   const startPoint = {
     x: connection.from.x,
-    // y: connection.from.y + (connection.fromType === 'top' ? 100 : -100),
     y: connection.from.y,
   }
   const endPoint = {
     x: connection.to.x,
-    // y: connection.to.y + (connection.toType === 'top' ? 100 : -100),
     y: connection.to.y,
   }
 
@@ -223,176 +212,177 @@ function getLineStyle(connection: Connection) {
   )
 
   return {
-    '--border-bottom-width': `calc(${distance}px - 200px)`,
-    '--before-el-top': `calc(${distance}px - 100px)`,
-    left: startPoint.x + 'px',
-    top: startPoint.y + 'px',
+    '--border-bottom-width': `${distance - 200}px`,
+    '--before-el-top': `${distance - 100}px`,
+    left: `${startPoint.x}px`,
+    top: `${startPoint.y}px`,
     transform: `rotate(${360 - angle}deg)`,
     transformOrigin: 'top center',
-    paddingTop: '100px',
   }
 }
-
-onMounted(() => {
-  // 防止拖拽时选中文本
-  document.addEventListener('selectstart', (e) => {
-    if (currentDrag.value) {
-      e.preventDefault()
-    }
-  })
-})
 </script>
 
 <template>
-  <div
-    class="question-content"
-    ref="questionContentRef"
-    @mousemove="onMouseMove"
-    @mouseup="onMouseUp"
-  >
-    <div
-      v-for="connection in connections"
-      :key="connection.id"
-      :style="getLineStyle(connection)"
-      class="connection-line"
-    ></div>
-
-    <div v-if="currentDrag" :style="tempLineStyle" class="temp-line"></div>
-
-    <div class="top">
+  <div class="implemented-with-css" @mousemove="onMouseMove" @mouseup="onMouseUp">
+    <div class="question-content" ref="questionContentRef">
       <div
-        v-for="(option, index) in topOptions"
-        :key="option.id"
-        class="option-item"
-        :data-type="'top'"
-        :data-index="index"
-        @mousedown="onBallMouseDown($event, 'top', index)"
-      >
-        <span>{{ option.text }}</span>
+        v-for="connection in connections"
+        :key="connection.id"
+        :style="getLineStyle(connection)"
+        class="connection-line"
+      ></div>
+
+      <div v-if="currentDrag" :style="tempLineStyle" class="temp-line"></div>
+
+      <div class="top">
+        <div
+          v-for="(option, index) in topOptions"
+          :key="option.id"
+          class="option-item"
+          :class="{ dragging: currentDrag?.fromIndex === index && currentDrag?.fromType === 'top' }"
+          :data-type="'top'"
+          :data-index="index"
+          @mousedown="onBallMouseDown($event, 'top', index)"
+        >
+          <span>{{ option.text }}</span>
+        </div>
       </div>
-    </div>
-    <div class="bottom">
-      <div
-        v-for="(option, index) in bottomOptions"
-        :key="option.id"
-        class="option-item"
-        :data-type="'bottom'"
-        :data-index="index"
-        @mousedown="onBallMouseDown($event, 'bottom', index)"
-      >
-        <span>{{ option.text }}</span>
+      <div class="bottom">
+        <div
+          v-for="(option, index) in bottomOptions"
+          :key="option.id"
+          class="option-item"
+          :class="{
+            dragging: currentDrag?.fromIndex === index && currentDrag?.fromType === 'bottom',
+          }"
+          :data-type="'bottom'"
+          :data-index="index"
+          @mousedown="onBallMouseDown($event, 'bottom', index)"
+        >
+          <span>{{ option.text }}</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.question-content {
+.implemented-with-css {
   width: 100%;
   height: 100%;
-  max-width: 1440px;
-  max-height: 600px;
-  padding: 24px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  position: relative;
-  user-select: none;
+  justify-content: center;
+  overflow: hidden;
 
-  --border-bottom-width: 0;
-  --before-el-top: 0;
-
-  .temp-line,
-  .connection-line {
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-bottom: 150px solid #f9f8ca;
-    border-bottom-width: var(--border-bottom-width);
-
-    &::before {
-      content: '';
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #f9f8ca;
-      top: calc(var(--before-el-top) - 5px);
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    &::after {
-      content: '';
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: #f9f8ca;
-      top: calc(var(--before-el-top) - 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      filter: blur(3px);
-    }
-  }
-
-  .connection-line {
-    animation: dash 500ms;
-
-    &::before {
-      animation: dash-before 500ms;
-    }
-
-    &::after {
-      animation: dash-after 500ms;
-    }
-  }
-
-  .top,
-  .bottom {
+  .question-content {
+    width: 100%;
+    height: 100%;
+    max-width: 1440px;
+    max-height: 600px;
+    padding: 24px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    z-index: 2;
+    position: relative;
+    user-select: none;
 
-    .option-item {
-      width: 180px;
-      height: 180px;
-      border-radius: 50%;
-      background: linear-gradient(145deg, #6096d3 0%, #1a2ac1 100%);
-      box-shadow: 0 4px 44px 0 #bfdee4 inset;
+    --border-bottom-width: 0;
+    --before-el-top: 0;
+
+    .temp-line,
+    .connection-line {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-bottom: 150px solid #f9f8ca;
+      border-bottom-width: var(--border-bottom-width);
+      padding-top: 100px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #f9f8ca;
+        top: calc(var(--before-el-top) - 5px);
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #f9f8ca;
+        top: calc(var(--before-el-top) - 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        filter: blur(3px);
+      }
+    }
+
+    .connection-line {
+      animation: dash 500ms;
+
+      &::before {
+        animation: dash-before 500ms;
+      }
+
+      &::after {
+        animation: dash-after 500ms;
+      }
+    }
+
+    .top,
+    .bottom {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      font-weight: 500;
-      color: #ffffff;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      position: relative;
+      justify-content: space-between;
+      width: 100%;
+      z-index: 2;
 
-      &:hover {
-        transform: scale(1.05);
-        box-shadow:
-          0 4px 44px 0 #bfdee4 inset,
-          0 0 20px #ffffff4c;
-      }
+      .option-item {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: linear-gradient(145deg, #6096d3 0%, #1a2ac1 100%);
+        box-shadow: 0 4px 44px 0 #bfdee4 inset;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 500;
+        color: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
 
-      &.dragging {
-        transform: scale(1.1);
-        box-shadow:
-          0 4px 44px 0 #bfdee4 inset,
-          0 0 30px #ffffff7f;
-        z-index: 10;
-      }
+        &:hover {
+          transform: scale(1.05);
+          box-shadow:
+            0 4px 44px 0 #bfdee4 inset,
+            0 0 20px #ffffff4c;
+        }
 
-      span {
-        user-select: none;
-        pointer-events: none;
+        &.dragging {
+          transform: scale(1.1);
+          box-shadow:
+            0 4px 44px 0 #bfdee4 inset,
+            0 0 30px #ffffff7f;
+          z-index: 10;
+        }
+
+        span {
+          user-select: none;
+          pointer-events: none;
+        }
       }
     }
   }
