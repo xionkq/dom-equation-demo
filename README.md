@@ -1,39 +1,22 @@
 # dom-equation-demo
 
-This template should help get you started developing with Vue 3 in Vite.
+## 起因
 
-## Recommended IDE Setup
+事情的起因是最近有个星座主题的项目，其中有一个类似选择题的界面，ui 要求界面中选择题连线的效果最好像是流星划过。看到设计稿的我直接痛苦面具、但作为一个
+合格的前端，必然会一比一完美还原设计稿！！
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+正在苦思冥想该怎么绘制实现这个动效，隔壁 c++ 同事凑过来看了眼，说这简单，两个圆开始连线时，先计算一个圆的方程，从圆心向鼠标作射线，求出射线和圆心
+的交点，交点作圆心，交点到鼠标的距离为半径作第二个圆，给这个圆一个锥形渐变，就实现了啊。我听着只觉得一脑袋问号，高中的几何知识早已生疏，我还从没在界面上
+作过数学方程，况且 js 写代码解二元一次方程什么的想想就离谱，c++ 岗位对数学要求这么高吗，并赶紧让他走开别捣乱。
 
-## Type Support for `.vue` Imports in TS
+第二天早会汇报工作准备提及此事（最终实现方式是使用 css 配合 js 做，前端最经典的方式），想到同事提出的离谱方程写法，却越想越是思路清晰，html 是有 xy 轴的
+，想求出圆心半径什么的也比较容易，有搞头啊，遂想尝试下在 js 中解方程:)
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## 思路
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-pnpm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-pnpm dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-pnpm build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm lint
-```
+当从一个圆中拉出一条连线时：
+1. 根据圆的视口位置和宽高，找出圆心和半径，构建方程 f1
+2. 有了圆心和鼠标位置 p1 的坐标，求出水平方向的角度，构建圆心到 p1 的线段方程 f2
+3. 根据两方程求解其交点 p2，以 p2 为圆心，p2 到 p1 的距离为半径，使用 css 绘制圆形
+4. 接下来给圆形一个锥形渐变作为流星效果的尾焰，渐变角度由线段 p1p2 求出水平方向的角度给出
+5. 事已至此，开干！！
